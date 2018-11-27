@@ -1,0 +1,19 @@
+{
+  "name": "bigint-unboxed",
+  "version": "1.0.0",
+  "description": "Big integers with support for unboxed small integers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/minad/bigint-unboxed.git"
+  },
+  "author": "Daniel Mendler",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/minad/bigint-unboxed/issues"
+  },
+  "homepage": "https://github.com/minad/bigint-unboxed#readme"
+}
