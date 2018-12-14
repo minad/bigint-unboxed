@@ -4,7 +4,7 @@
  * Small integers are stored as JavaScript numbers instead of as boxed objects.
  */
 
-module.exports = function(bigint) {
+module.exports = function(B) {
     const BITS = 53,
         DIV = 0x100000000,
         MAX = Math.pow(2, BITS); // largest precise integer
@@ -18,23 +18,23 @@ module.exports = function(bigint) {
     }
 
     function wrap(x) {
-        return isNum(x) ? bigint.i(x) : x;
+        return isNum(x) ? B.i(x) : x;
     }
 
     function i(x) {
-        return isNum(x) ? x : bigint.i(x);
+        return isNum(x) ? x : B.i(x);
     }
 
     function i2n(x) {
-        return isNum(x) ? x : bigint.i2n(x);
+        return isNum(x) ? x : B.i2n(x);
     }
 
     function icmp(x, y) {
-        return areNums(x, y) ? (x > y) - (x < y) : bigint.icmp(wrap(x), wrap(y));
+        return areNums(x, y) ? (x > y) - (x < y) : B.icmp(wrap(x), wrap(y));
     }
 
     function idiv(x, y) {
-        return areNums(x, y) ? Math.floor(x / y) : bigint.idiv(wrap(x), wrap(y));
+        return areNums(x, y) ? Math.floor(x / y) : B.idiv(wrap(x), wrap(y));
     }
 
     function imod(x, y) {
@@ -42,7 +42,7 @@ module.exports = function(bigint) {
             const m = x % y;
             return (m === 0 || (m < 0) === (y < 0)) ? m : m + y;
         }
-        return bigint.imod(wrap(x), wrap(y));
+        return B.imod(wrap(x), wrap(y));
     }
 
     function iadd(x, y) {
@@ -51,7 +51,7 @@ module.exports = function(bigint) {
             if (-MAX < z && z < MAX)
                 return z;
         }
-        return bigint.iadd(wrap(x), wrap(y));
+        return B.iadd(wrap(x), wrap(y));
     }
 
     function isub(x, y) {
@@ -60,7 +60,7 @@ module.exports = function(bigint) {
             if (-MAX < z && z < MAX)
                 return z;
         }
-        return bigint.isub(wrap(x), wrap(y));
+        return B.isub(wrap(x), wrap(y));
     }
 
     function imul(x, y) {
@@ -69,7 +69,7 @@ module.exports = function(bigint) {
             if (-MAX < z && z < MAX)
                 return z;
         }
-        return bigint.imul(wrap(x), wrap(y));
+        return B.imul(wrap(x), wrap(y));
     }
 
     function ibitop(op, x, y) {
@@ -86,33 +86,33 @@ module.exports = function(bigint) {
     }
 
     function iand(x, y) {
-        return areNums(x, y) ? ibitop(0, x, y) : bigint.iand(wrap(x), wrap(y));
+        return areNums(x, y) ? ibitop(0, x, y) : B.iand(wrap(x), wrap(y));
     }
 
     function ior(x, y) {
-        return areNums(x, y) ? ibitop(1, x, y) : bigint.ior(wrap(x), wrap(y));
+        return areNums(x, y) ? ibitop(1, x, y) : B.ior(wrap(x), wrap(y));
     }
 
     function ixor(x, y) {
-        return areNums(x, y) ? ibitop(2, x, y) : bigint.ixor(wrap(x), wrap(y));
+        return areNums(x, y) ? ibitop(2, x, y) : B.ixor(wrap(x), wrap(y));
     }
 
     function inot(x) {
-        return isNum(x) ? ~x : bigint.inot(x);
+        return isNum(x) ? ~x : B.inot(x);
     }
 
     function ineg(x) {
-        return isNum(x) ? -x : bigint.ineg(x);
+        return isNum(x) ? -x : B.ineg(x);
     }
 
     function irem(x, y) {
-        return areNums(x, y) ? x % y : bigint.irem(wrap(x), wrap(y));
+        return areNums(x, y) ? x % y : B.irem(wrap(x), wrap(y));
     }
 
     function iquot(x, y) {
         if (areNums(x, y))
             return x === 0 ? 0 : (x < 0) === (y < 0) ? Math.floor(x / y) : -Math.floor(-x / y);
-        return bigint.iquot(wrap(x), wrap(y));
+        return B.iquot(wrap(x), wrap(y));
     }
 
     function ishl(x, y) {
@@ -121,7 +121,7 @@ module.exports = function(bigint) {
             if (-MAX < z && z < MAX)
                 return z;
         }
-        return bigint.ishl(wrap(x), y);
+        return B.ishl(wrap(x), y);
     }
 
     function ishr(x, y) {
@@ -130,7 +130,7 @@ module.exports = function(bigint) {
                 return x < 0 ? -1 : 0;
             return Math.floor(x / Math.pow(2, y));
         }
-        return bigint.ishr(x, y);
+        return B.ishr(x, y);
     }
 
     return {
