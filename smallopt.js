@@ -18,58 +18,58 @@ module.exports = function(B) {
     }
 
     function wrap(x) {
-        return isNum(x) ? B.i(x) : x;
+        return isNum(x) ? B.I(x) : x;
     }
 
-    function i(x) {
-        return isNum(x) ? x : B.i(x);
+    function I(x) {
+        return isNum(x) ? x : B.I(x);
     }
 
-    function i2n(x) {
-        return isNum(x) ? x : B.i2n(x);
+    function intToFloat64(x) {
+        return isNum(x) ? x : B.intToFloat64(x);
     }
 
-    function icmp(x, y) {
-        return areNums(x, y) ? (x > y) - (x < y) : B.icmp(wrap(x), wrap(y));
+    function intCmp(x, y) {
+        return areNums(x, y) ? (x > y) - (x < y) : B.intCmp(wrap(x), wrap(y));
     }
 
-    function idiv(x, y) {
-        return areNums(x, y) ? Math.floor(x / y) : B.idiv(wrap(x), wrap(y));
+    function intDiv(x, y) {
+        return areNums(x, y) ? Math.floor(x / y) : B.intDiv(wrap(x), wrap(y));
     }
 
-    function imod(x, y) {
+    function intMod(x, y) {
         if (areNums(x, y)) {
             const m = x % y;
             return (m === 0 || (m < 0) === (y < 0)) ? m : m + y;
         }
-        return B.imod(wrap(x), wrap(y));
+        return B.intMod(wrap(x), wrap(y));
     }
 
-    function iadd(x, y) {
+    function intAdd(x, y) {
         if (areNums(x, y)) {
             const z = x + y;
             if (-MAX < z && z < MAX)
                 return z;
         }
-        return B.iadd(wrap(x), wrap(y));
+        return B.intAdd(wrap(x), wrap(y));
     }
 
-    function isub(x, y) {
+    function intSub(x, y) {
         if (areNums(x, y)) {
             const z = x - y;
             if (-MAX < z && z < MAX)
                 return z;
         }
-        return B.isub(wrap(x), wrap(y));
+        return B.intSub(wrap(x), wrap(y));
     }
 
-    function imul(x, y) {
+    function intMul(x, y) {
         if (areNums(x, y)) {
             const z = x * y;
             if (-MAX < z && z < MAX)
                 return z;
         }
-        return B.imul(wrap(x), wrap(y));
+        return B.intMul(wrap(x), wrap(y));
     }
 
     function ibitop(op, x, y) {
@@ -85,56 +85,56 @@ module.exports = function(B) {
         return s ? x - MAX : x;
     }
 
-    function iand(x, y) {
-        return areNums(x, y) ? ibitop(0, x, y) : B.iand(wrap(x), wrap(y));
+    function intAnd(x, y) {
+        return areNums(x, y) ? ibitop(0, x, y) : B.intAnd(wrap(x), wrap(y));
     }
 
-    function ior(x, y) {
-        return areNums(x, y) ? ibitop(1, x, y) : B.ior(wrap(x), wrap(y));
+    function intOr(x, y) {
+        return areNums(x, y) ? ibitop(1, x, y) : B.intOr(wrap(x), wrap(y));
     }
 
-    function ixor(x, y) {
-        return areNums(x, y) ? ibitop(2, x, y) : B.ixor(wrap(x), wrap(y));
+    function intXor(x, y) {
+        return areNums(x, y) ? ibitop(2, x, y) : B.intXor(wrap(x), wrap(y));
     }
 
-    function inot(x) {
-        return isNum(x) ? ~x : B.inot(x);
+    function intNot(x) {
+        return isNum(x) ? ~x : B.intNot(x);
     }
 
-    function ineg(x) {
-        return isNum(x) ? -x : B.ineg(x);
+    function intNeg(x) {
+        return isNum(x) ? -x : B.intNeg(x);
     }
 
-    function irem(x, y) {
-        return areNums(x, y) ? x % y : B.irem(wrap(x), wrap(y));
+    function intRem(x, y) {
+        return areNums(x, y) ? x % y : B.intRem(wrap(x), wrap(y));
     }
 
-    function iquot(x, y) {
+    function intQuot(x, y) {
         if (areNums(x, y))
             return x === 0 ? 0 : (x < 0) === (y < 0) ? Math.floor(x / y) : -Math.floor(-x / y);
-        return B.iquot(wrap(x), wrap(y));
+        return B.intQuot(wrap(x), wrap(y));
     }
 
-    function ishl(x, y) {
+    function intShl(x, y) {
         if (isNum(x) && y < BITS) {
             const z = x * Math.pow(2, y);
             if (-MAX < z && z < MAX)
                 return z;
         }
-        return B.ishl(wrap(x), y);
+        return B.intShl(wrap(x), y);
     }
 
-    function ishr(x, y) {
+    function intShr(x, y) {
         if (isNum(x)) {
             if (y > BITS)
                 return x < 0 ? -1 : 0;
             return Math.floor(x / Math.pow(2, y));
         }
-        return B.ishr(x, y);
+        return B.intShr(x, y);
     }
 
     return {
-        i, i2n, icmp, iadd, iand, idiv, imod, imul,
-        ineg, inot, ior, iquot, irem, ishl, ishr, isub, ixor
+        I, intToFloat64, intCmp, intAdd, intAnd, intDiv, intMod, intMul,
+        intNeg, intNot, intOr, intQuot, intRem, intShl, intShr, intSub, intXor
     };
 };

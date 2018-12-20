@@ -21,26 +21,26 @@ function Int(neg, val, len) {
 }
 
 Int.prototype.toString = function() {
-    return i2s(this);
+    return intToString(this);
 };
 
-function i2s(a) {
+function intToString(a) {
     if (a.len < 3 || a.len === 3 && a.val[2] === 1)
-        return i2n(a).toString();
+        return intToFloat64(a).toString();
     let out = "", c = a;
     while (!izero(c)) {
-        const r = imodn(c, 1e7).toString();
-        c = idivn(c, 1e7);
+        const r = modn(c, 1e7).toString();
+        c = divn(c, 1e7);
         out = izero(c) ? r + out : "0000000".substr(r.length) + r + out;
     }
     return a.neg ? "-" + out : out;
 }
 
-function i(x) {
-    return typeof x === "string" ? s2i(x) : n2i(x);
+function I(x) {
+    return typeof x === "string" ? stringToInt(x) : float64ToInt(x);
 }
 
-function n2i(n) {
+function float64ToInt(n) {
     let neg = 0;
     if (n < 0) {
         neg = 1;
@@ -56,7 +56,7 @@ function ibits(a) {
     return (a.len - 1) * BITS + 32 - Math.clz32(a.val[a.len - 1]);
 }
 
-function s2i(s) {
+function stringToInt(s) {
     const neg = s[0] === "-" ? 1 : 0,
           len = Math.ceil(s.length / 6),
           a = new Array(len);
@@ -84,14 +84,14 @@ function s2i(s) {
 }
 
 function iabs(x) {
-    return x.neg ? ineg(x) : x;
+    return x.neg ? intNeg(x) : x;
 }
 
-function iadd(x, y) {
+function intAdd(x, y) {
     if (x.neg && !y.neg)
-        return isub(y, ineg(x));
+        return intSub(y, intNeg(x));
     if (!x.neg && y.neg)
-        return isub(x, ineg(y));
+        return intSub(x, intNeg(y));
     if (x.len < y.len) {
         const t = x;
         x = y;
@@ -109,13 +109,13 @@ function iadd(x, y) {
     return new Int(x.neg, z, z.length);
 }
 
-function isub(x, y) {
+function intSub(x, y) {
     if (y.neg)
-        return iadd(x, ineg(y));
+        return intAdd(x, intNeg(y));
     if (x.neg)
-        return ineg(iadd(ineg(x), y));
+        return intNeg(intAdd(intNeg(x), y));
 
-    const cmp = icmp(x, y);
+    const cmp = intCmp(x, y);
     if (cmp === 0)
         return ZERO;
 
@@ -134,9 +134,9 @@ function isub(x, y) {
     return new Int(cmp < 0 ? 1 : x.neg, z, Math.max(x.len, j));
 }
 
-function ishr(x, y)  {
+function intShr(x, y)  {
     if (x.neg)
-        return isubn(ineg(ishr(ineg(iaddn(x, 1)), y)), 1);
+        return intSubn(intNeg(intShr(intNeg(intAddn(x, 1)), y)), 1);
 
     const r = y % BITS,
         s = Math.min((y - r) / BITS, x.len);
@@ -159,7 +159,7 @@ function ishr(x, y)  {
     return len === 0 ? ZERO : new Int(x.neg, z, len);
 }
 
-function ishl(x, y) {
+function intShl(x, y) {
     const z = x.val.slice(0),
           r = y % BITS,
           s = (y - r) / BITS,
@@ -190,13 +190,13 @@ function ishl(x, y) {
     return new Int(x.neg, z, len);
 }
 
-function iaddn(x, y) {
+function intAddn(x, y) {
     if (y < 0)
-        return isubn(x, -y);
+        return intSubn(x, -y);
     if (x.neg && x.len === 1 && x.val[0] < y)
         return new Int(0, [y - x.val[0]], 1);
     if (x.neg)
-        return ineg(isubn(ineg(x), y));
+        return intNeg(intSubn(intNeg(x), y));
     const z = x.val.slice(0);
     z[0] += y;
     let j;
@@ -210,11 +210,11 @@ function iaddn(x, y) {
     return new Int(x.neg, z, Math.max(x.len, j + 1));
 }
 
-function isubn(x, y) {
+function intSubn(x, y) {
     if (y < 0)
-        return iaddn(x, -y);
+        return intAddn(x, -y);
     if (x.neg)
-        return ineg(iaddn(ineg(x), y));
+        return intNeg(intAddn(intNeg(x), y));
     const z = x.val.slice(0);
     z[0] -= y;
     if (x.len === 1 && z[0] < 0) {
@@ -228,7 +228,7 @@ function isubn(x, y) {
     return new Int(x.neg, z, x.len);
 }
 
-function ishlsubmul(x, y, mul, shift) {
+function intShlsubmul(x, y, mul, shift) {
     const len = y.len + shift, z = x.val.slice(0);
 
     let zlen = x.len;
@@ -260,22 +260,22 @@ function ishlsubmul(x, y, mul, shift) {
     return new Int(1, z, zlen);
 }
 
-function idivmod(x, y) {
+function intDivmod(x, y) {
     if (izero(x))
         return [ZERO, ZERO];
     if (x.neg || y.neg) {
-        const z = idivmod(iabs(x), iabs(y));
-        return [x.neg && y.neg ? z[0] : ineg(z[0]), x.neg ? ineg(z[1]) : z[1]];
+        const z = intDivmod(iabs(x), iabs(y));
+        return [x.neg && y.neg ? z[0] : intNeg(z[0]), x.neg ? intNeg(z[1]) : z[1]];
     }
-    if (y.len > x.len || icmp(x, y) < 0)
+    if (y.len > x.len || intCmp(x, y) < 0)
         return [ZERO, x];
 
     let yhi = y.val[y.len - 1];
     const yhiBits = 32 - Math.clz32(yhi),
           shift = BITS - yhiBits;
     if (shift !== 0) {
-        y = ishl(y, shift);
-        x = ishl(x, shift);
+        y = intShl(y, shift);
+        x = intShl(x, shift);
         yhi = y.val[y.len - 1];
     }
 
@@ -283,7 +283,7 @@ function idivmod(x, y) {
     for (let j = 0; j < q.length; ++j)
         q[j] = 0;
 
-    const diff = ishlsubmul(x, y, 1, m);
+    const diff = intShlsubmul(x, y, 1, m);
     if (!diff.neg) {
         x = diff;
         q[m] = 1;
@@ -292,16 +292,16 @@ function idivmod(x, y) {
     for (let j = m - 1; j >= 0; --j) {
         q[j] = x.val[y.len + j] * SHIFT + x.val[y.len + j - 1];
         q[j] = Math.min((q[j] / yhi) | 0, MASK);
-        x = ishlsubmul(x, y, q[j], j);
+        x = intShlsubmul(x, y, q[j], j);
         while (x.neg) {
             --q[j];
-            x = ineg(ishlsubmul(ineg(x), y, 1, j));
+            x = intNeg(intShlsubmul(intNeg(x), y, 1, j));
         }
     }
-    return [new Int(0, q, q.length), shift ? ishr(x, shift) : x];
+    return [new Int(0, q, q.length), shift ? intShr(x, shift) : x];
 }
 
-function imodn(x, y) {
+function modn(x, y) {
     const p = (1 << BITS) % y;
     let z = 0;
     for (let j = x.len - 1; j >= 0; --j)
@@ -309,7 +309,7 @@ function imodn(x, y) {
     return z;
 }
 
-function idivn(x, y) {
+function divn(x, y) {
     const z = new Array(x.len);
     let carry = 0;
     for (let j = x.len - 1; j >= 0; --j) {
@@ -324,21 +324,21 @@ function izero(a) {
     return a.len === 1 && a.val[0] === 0;
 }
 
-function i2n(x) {
+function intToFloat64(x) {
     let r = 0;
     for (let j = x.len - 1; j >= 0; --j)
         r = r * SHIFT + x.val[j];
     return x.neg ? -r : r;
 }
 
-function idiv(x, y) {
-    const z = idivmod(x, y), q = z[0], m = z[1];
-    return (izero(m) || m.neg === y.neg) ? q : isubn(q, 1);
+function intDiv(x, y) {
+    const z = intDivmod(x, y), q = z[0], m = z[1];
+    return (izero(m) || m.neg === y.neg) ? q : intSubn(q, 1);
 }
 
-function imod(x, y) {
-    const m = idivmod(x, y)[1];
-    return (izero(m) || m.neg === y.neg) ? m : iadd(m, y);
+function intMod(x, y) {
+    const m = intDivmod(x, y)[1];
+    return (izero(m) || m.neg === y.neg) ? m : intAdd(m, y);
 }
 
 function ibitop(op, x, y) {
@@ -350,9 +350,9 @@ function ibitop(op, x, y) {
     let neg = x.neg;
     const yneg = y.neg,
           bits = Math.max(ibits(x), ibits(y)),
-          max = neg || yneg ? ishl(ONE, bits + 1) : null;
-    x = x.neg ? iadd(max, x) : x;
-    y = y.neg ? iadd(max, y) : y;
+          max = neg || yneg ? intShl(ONE, bits + 1) : null;
+    x = x.neg ? intAdd(max, x) : x;
+    y = y.neg ? intAdd(max, y) : y;
     let z = x.val.slice(0), len = x.len;
     switch (op) {
     case 0:
@@ -373,22 +373,22 @@ function ibitop(op, x, y) {
         break;
     }
     z = new Int(0, z, len);
-    return neg ? isub(z, max) : z;
+    return neg ? intSub(z, max) : z;
 }
 
-function iand(x, y) {
+function intAnd(x, y) {
     return ibitop(0, x, y);
 }
 
-function ior(x, y) {
+function intOr(x, y) {
     return ibitop(1, x, y);
 }
 
-function ixor(x, y) {
+function intXor(x, y) {
     return ibitop(2, x, y);
 }
 
-function icmp(x, y)  {
+function intCmp(x, y)  {
     if (x.neg !== y.neg)
         return x.neg ? -1 : 1;
     if (x.len !== y.len)
@@ -402,7 +402,7 @@ function icmp(x, y)  {
     return 0;
 }
 
-function imul(x, y)  {
+function intMul(x, y)  {
     const z = new Array(x.len + y.len);
     let carry = 0, hncarry = 0, k;
     for (k = 0; k < z.length - 1; k++) {
@@ -418,30 +418,29 @@ function imul(x, y)  {
         }
         z[k] = rword;
         carry = ncarry;
-        ncarry = hncarry;
     }
     if (carry !== 0)
         z[k] = carry;
     return new Int(x.neg ^ y.neg, z, carry ? z.length : z.length - 1);
 }
 
-function inot(x) {
-    return isubn(ineg(x), 1);
+function intNot(x) {
+    return intSubn(intNeg(x), 1);
 }
 
-function ineg(x) {
+function intNeg(x) {
     return new Int(izero(x) ? 0 : (x.neg ^ 1), x.val, x.len);
 }
 
-function irem(x, y)  {
-    return idivmod(x, y)[1];
+function intRem(x, y)  {
+    return intDivmod(x, y)[1];
 }
 
-function iquot(x, y) {
-    return idivmod(x, y)[0];
+function intQuot(x, y) {
+    return intDivmod(x, y)[0];
 }
 
 module.exports = {
-    i, i2n, icmp, iadd, iand, idiv, imod, imul,
-    ineg, inot, ior, iquot, irem, ishl, ishr, isub, ixor
+    I, intToFloat64, intCmp, intAdd, intAnd, intDiv, intMod, intMul,
+    intNeg, intNot, intOr, intQuot, intRem, intShl, intShr, intSub, intXor
 };
