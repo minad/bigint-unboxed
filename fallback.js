@@ -1,6 +1,6 @@
 /**
  * @file
- * Minimal immutable big integer library, which contains only what is needed by the Chili runtime.
+ * Minimal immutable big integer library.
  * The library is derived from Fedor Idutny's bn.js (MIT licensed, Copyright Fedor Idutny, 2015).
  */
 
