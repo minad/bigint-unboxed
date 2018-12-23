@@ -4,8 +4,6 @@
  * The library is derived from Fedor Idutny's bn.js (MIT licensed, Copyright Fedor Idutny, 2015).
  */
 
-"use strict";
-
 const BITS = 26, SHIFT = 1 << BITS, SHIFT2 = SHIFT * SHIFT, MASK = SHIFT - 1,
       ONE = new Int(0, [1], 1), ZERO = new Int(0, [0], 1);
 
