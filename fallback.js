@@ -26,10 +26,10 @@ function intToString(a) {
     if (a.len < 3 || a.len === 3 && a.val[2] === 1)
         return intToFloat64(a).toString();
     let out = "", c = a;
-    while (!izero(c)) {
+    while (!isZero(c)) {
         const r = modn(c, 1e7).toString();
         c = divn(c, 1e7);
-        out = izero(c) ? r + out : "0000000".substr(r.length) + r + out;
+        out = isZero(c) ? r + out : "0000000".substr(r.length) + r + out;
     }
     return a.neg ? "-" + out : out;
 }
@@ -259,7 +259,7 @@ function intShlsubmul(x, y, mul, shift) {
 }
 
 function intDivmod(x, y) {
-    if (izero(x))
+    if (isZero(x))
         return [ZERO, ZERO];
     if (x.neg || y.neg) {
         const z = intDivmod(iabs(x), iabs(y));
@@ -318,7 +318,7 @@ function divn(x, y) {
     return new Int(x.neg, z, x.len);
 }
 
-function izero(a) {
+function isZero(a) {
     return a.len === 1 && a.val[0] === 0;
 }
 
@@ -331,15 +331,15 @@ function intToFloat64(x) {
 
 function intDiv(x, y) {
     const z = intDivmod(x, y), q = z[0], m = z[1];
-    return (izero(m) || m.neg === y.neg) ? q : intSubn(q, 1);
+    return (isZero(m) || m.neg === y.neg) ? q : intSubn(q, 1);
 }
 
 function intMod(x, y) {
     const m = intDivmod(x, y)[1];
-    return (izero(m) || m.neg === y.neg) ? m : intAdd(m, y);
+    return (isZero(m) || m.neg === y.neg) ? m : intAdd(m, y);
 }
 
-function ibitop(op, x, y) {
+function bitOp(op, x, y) {
     if (x.len < y.len) {
         const t = x;
         x = y;
@@ -375,15 +375,15 @@ function ibitop(op, x, y) {
 }
 
 function intAnd(x, y) {
-    return ibitop(0, x, y);
+    return bitOp(0, x, y);
 }
 
 function intOr(x, y) {
-    return ibitop(1, x, y);
+    return bitOp(1, x, y);
 }
 
 function intXor(x, y) {
-    return ibitop(2, x, y);
+    return bitOp(2, x, y);
 }
 
 function intCmp(x, y)  {
@@ -427,7 +427,7 @@ function intNot(x) {
 }
 
 function intNeg(x) {
-    return new Int(izero(x) ? 0 : (x.neg ^ 1), x.val, x.len);
+    return new Int(isZero(x) ? 0 : (x.neg ^ 1), x.val, x.len);
 }
 
 function intRem(x, y)  {
