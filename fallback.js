@@ -50,7 +50,7 @@ function float64ToInt(n) {
     return new Int(neg, n, n.length);
 }
 
-function ibits(a) {
+function countBits(a) {
     return (a.len - 1) * BITS + 32 - Math.clz32(a.val[a.len - 1]);
 }
 
@@ -134,7 +134,7 @@ function intSub(x, y) {
 
 function intShr(x, y)  {
     if (x.neg)
-        return intSubn(intNeg(intShr(intNeg(intAddn(x, 1)), y)), 1);
+        return subn(intNeg(intShr(intNeg(addn(x, 1)), y)), 1);
 
     const r = y % BITS,
         s = Math.min((y - r) / BITS, x.len);
@@ -188,13 +188,13 @@ function intShl(x, y) {
     return new Int(x.neg, z, len);
 }
 
-function intAddn(x, y) {
+function addn(x, y) {
     if (y < 0)
-        return intSubn(x, -y);
+        return subn(x, -y);
     if (x.neg && x.len === 1 && x.val[0] < y)
         return new Int(0, [y - x.val[0]], 1);
     if (x.neg)
-        return intNeg(intSubn(intNeg(x), y));
+        return intNeg(subn(intNeg(x), y));
     const z = x.val.slice(0);
     z[0] += y;
     let j;
@@ -208,11 +208,11 @@ function intAddn(x, y) {
     return new Int(x.neg, z, Math.max(x.len, j + 1));
 }
 
-function intSubn(x, y) {
+function subn(x, y) {
     if (y < 0)
-        return intAddn(x, -y);
+        return addn(x, -y);
     if (x.neg)
-        return intNeg(intAddn(intNeg(x), y));
+        return intNeg(addn(intNeg(x), y));
     const z = x.val.slice(0);
     z[0] -= y;
     if (x.len === 1 && z[0] < 0) {
@@ -226,7 +226,7 @@ function intSubn(x, y) {
     return new Int(x.neg, z, x.len);
 }
 
-function intShlsubmul(x, y, mul, shift) {
+function shlSubMul(x, y, mul, shift) {
     const len = y.len + shift, z = x.val.slice(0);
 
     let zlen = x.len;
@@ -258,11 +258,11 @@ function intShlsubmul(x, y, mul, shift) {
     return new Int(1, z, zlen);
 }
 
-function intDivmod(x, y) {
+function divMod(x, y) {
     if (isZero(x))
         return [ZERO, ZERO];
     if (x.neg || y.neg) {
-        const z = intDivmod(iabs(x), iabs(y));
+        const z = divMod(iabs(x), iabs(y));
         return [x.neg && y.neg ? z[0] : intNeg(z[0]), x.neg ? intNeg(z[1]) : z[1]];
     }
     if (y.len > x.len || intCmp(x, y) < 0)
@@ -281,7 +281,7 @@ function intDivmod(x, y) {
     for (let j = 0; j < q.length; ++j)
         q[j] = 0;
 
-    const diff = intShlsubmul(x, y, 1, m);
+    const diff = shlSubMul(x, y, 1, m);
     if (!diff.neg) {
         x = diff;
         q[m] = 1;
@@ -290,10 +290,10 @@ function intDivmod(x, y) {
     for (let j = m - 1; j >= 0; --j) {
         q[j] = x.val[y.len + j] * SHIFT + x.val[y.len + j - 1];
         q[j] = Math.min((q[j] / yhi) | 0, MASK);
-        x = intShlsubmul(x, y, q[j], j);
+        x = shlSubMul(x, y, q[j], j);
         while (x.neg) {
             --q[j];
-            x = intNeg(intShlsubmul(intNeg(x), y, 1, j));
+            x = intNeg(shlSubMul(intNeg(x), y, 1, j));
         }
     }
     return [new Int(0, q, q.length), shift ? intShr(x, shift) : x];
@@ -330,12 +330,12 @@ function intToFloat64(x) {
 }
 
 function intDiv(x, y) {
-    const z = intDivmod(x, y), q = z[0], m = z[1];
-    return (isZero(m) || m.neg === y.neg) ? q : intSubn(q, 1);
+    const z = divMod(x, y), q = z[0], m = z[1];
+    return (isZero(m) || m.neg === y.neg) ? q : subn(q, 1);
 }
 
 function intMod(x, y) {
-    const m = intDivmod(x, y)[1];
+    const m = divMod(x, y)[1];
     return (isZero(m) || m.neg === y.neg) ? m : intAdd(m, y);
 }
 
@@ -347,7 +347,7 @@ function bitOp(op, x, y) {
     }
     let neg = x.neg;
     const yneg = y.neg,
-          bits = Math.max(ibits(x), ibits(y)),
+          bits = Math.max(countBits(x), countBits(y)),
           max = neg || yneg ? intShl(ONE, bits + 1) : null;
     x = x.neg ? intAdd(max, x) : x;
     y = y.neg ? intAdd(max, y) : y;
@@ -423,7 +423,7 @@ function intMul(x, y)  {
 }
 
 function intNot(x) {
-    return intSubn(intNeg(x), 1);
+    return subn(intNeg(x), 1);
 }
 
 function intNeg(x) {
@@ -431,11 +431,11 @@ function intNeg(x) {
 }
 
 function intRem(x, y)  {
-    return intDivmod(x, y)[1];
+    return divMod(x, y)[1];
 }
 
 function intQuot(x, y) {
-    return intDivmod(x, y)[0];
+    return divMod(x, y)[0];
 }
 
 module.exports = {
