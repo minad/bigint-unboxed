@@ -37,14 +37,6 @@ module.exports = function(B) {
         return areNums(x, y) ? Math.floor(x / y) : B.intDiv(wrap(x), wrap(y));
     }
 
-    function intMod(x, y) {
-        if (areNums(x, y)) {
-            const m = x % y;
-            return (m === 0 || (m < 0) === (y < 0)) ? m : m + y;
-        }
-        return B.intMod(wrap(x), wrap(y));
-    }
-
     function intAdd(x, y) {
         if (areNums(x, y)) {
             const z = x + y;
@@ -109,10 +101,10 @@ module.exports = function(B) {
         return areNums(x, y) ? x % y : B.intRem(wrap(x), wrap(y));
     }
 
-    function intQuot(x, y) {
+    function intQuo(x, y) {
         if (areNums(x, y))
             return x === 0 ? 0 : (x < 0) === (y < 0) ? Math.floor(x / y) : -Math.floor(-x / y);
-        return B.intQuot(wrap(x), wrap(y));
+        return B.intQuo(wrap(x), wrap(y));
     }
 
     function intShl(x, y) {
@@ -134,7 +126,7 @@ module.exports = function(B) {
     }
 
     return {
-        I, intToFloat64, intCmp, intAdd, intAnd, intDiv, intMod, intMul,
-        intNeg, intNot, intOr, intQuot, intRem, intShl, intShr, intSub, intXor
+        I, intToFloat64, intCmp, intAdd, intAnd, intDiv, intMul,
+        intNeg, intNot, intOr, intQuo, intRem, intShl, intShr, intSub, intXor
     };
 };

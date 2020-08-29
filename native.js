@@ -3,10 +3,6 @@
  * Adapter for native JavaScript BigInt support
  */
 
-/* eslint-disable no-var */
-var BigInt;
-/* eslint-enable no-var */
-
 if (typeof BigInt === "undefined")
     throw new Error("BigInt is undefined");
 
@@ -23,11 +19,6 @@ function intDiv(x, y) {
     return (m === ZERO || (m < ZERO) === (y < ZERO)) ? q : q - ONE;
 }
 
-function intMod(x, y) {
-    const m = x % y;
-    return (m === ZERO || (m < ZERO) === (y < ZERO)) ? m : m + y;
-}
-
 function intToFloat64(x)      { return Number(x); }
 function intCmp(x, y)  { return (x > y) - (x < y); }
 function intAdd(x, y)  { return x + y; }
@@ -39,11 +30,11 @@ function intXor(x, y)  { return x ^ y; }
 function intNot(x)     { return ~x; }
 function intNeg(x)     { return -x; }
 function intRem(x, y)  { return x % y; }
-function intQuot(x, y) { return x / y; }
+function intQuo(x, y)  { return x / y; }
 function intShl(x, y)  { return x << BigInt(y); }
 function intShr(x, y)  { return x >> BigInt(y); }
 
 module.exports = {
-    I, intToFloat64, intCmp, intAdd, intAnd, intDiv, intMod, intMul,
-    intNeg, intNot, intOr, intQuot, intRem, intShl, intShr, intSub, intXor
+    I, intToFloat64, intCmp, intAdd, intAnd, intDiv, intMul,
+    intNeg, intNot, intOr, intQuo, intRem, intShl, intShr, intSub, intXor
 };

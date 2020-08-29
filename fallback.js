@@ -334,11 +334,6 @@ function intDiv(x, y) {
     return (isZero(m) || m.neg === y.neg) ? q : subn(q, 1);
 }
 
-function intMod(x, y) {
-    const m = divMod(x, y)[1];
-    return (isZero(m) || m.neg === y.neg) ? m : intAdd(m, y);
-}
-
 function bitOp(op, x, y) {
     if (x.len < y.len) {
         const t = x;
@@ -348,9 +343,9 @@ function bitOp(op, x, y) {
     let neg = x.neg;
     const yneg = y.neg,
           bits = Math.max(countBits(x), countBits(y)),
-          max = neg || yneg ? intShl(ONE, bits + 1) : null;
-    x = x.neg ? intAdd(max, x) : x;
-    y = y.neg ? intAdd(max, y) : y;
+          max = neg || yneg ? intShl(ONE, bits + 1) : void 0;
+    x = neg ? intAdd(max, x) : x;
+    y = yneg ? intAdd(max, y) : y;
     let z = x.val.slice(0), len = x.len;
     switch (op) {
     case 0:
@@ -434,11 +429,11 @@ function intRem(x, y)  {
     return divMod(x, y)[1];
 }
 
-function intQuot(x, y) {
+function intQuo(x, y) {
     return divMod(x, y)[0];
 }
 
 module.exports = {
-    I, intToFloat64, intCmp, intAdd, intAnd, intDiv, intMod, intMul,
-    intNeg, intNot, intOr, intQuot, intRem, intShl, intShr, intSub, intXor
+    I, intToFloat64, intCmp, intAdd, intAnd, intDiv, intMul,
+    intNeg, intNot, intOr, intQuo, intRem, intShl, intShr, intSub, intXor
 };
